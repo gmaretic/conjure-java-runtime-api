@@ -75,7 +75,11 @@ public abstract class QosException extends RuntimeException {
      * a later time, possibly against a different node of this service.
      */
     public static Unavailable unavailable() {
-        return new Unavailable();
+        return unavailable(Optional.empty(), Optional.empty());
+    }
+
+    public static Unavailable unavailable(Optional<Duration> retryAfter, Optional<URL> redirectTo) {
+        return new Unavailable(retryAfter, redirectTo);
     }
 
     /** See {@link #throttle}. */
@@ -131,8 +135,22 @@ public abstract class QosException extends RuntimeException {
 
     /** See {@link #unavailable}. */
     public static final class Unavailable extends QosException {
-        private Unavailable() {
+        private final Optional<Duration> retryAfter;
+        private final Optional<URL> redirectTo;
+
+
+        private Unavailable(Optional<Duration> retryAfter, Optional<URL> redirectTo) {
             super("Server unavailable");
+            this.retryAfter = retryAfter;
+            this.redirectTo = redirectTo;
+        }
+
+        public Optional<Duration> getRetryAfter() {
+            return retryAfter;
+        }
+
+        public Optional<URL> getRedirectTo() {
+            return redirectTo;
         }
 
         @Override
